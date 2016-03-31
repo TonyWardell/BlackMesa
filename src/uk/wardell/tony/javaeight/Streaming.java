@@ -1,9 +1,6 @@
 package uk.wardell.tony.javaeight;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -12,6 +9,11 @@ import static java.util.Comparator.comparingInt;
 
 /**
  * Created by tony on 28/03/2016.
+ *
+ * Practice Streams in java 8
+ *
+ * http://winterbe.com/posts/2014/07/31/java8-stream-tutorial-examples/
+ *
  */
 public class Streaming {
 
@@ -30,12 +32,15 @@ public class Streaming {
     public static void main(String[] args) {
 
         Streaming streaming = new Streaming();
-        //streaming.executeEightFive();
-        //streaming.highestPrice();
-        //streaming.lowestPriceOver10k();
-        //streaming.highestPriceOver10k();
-        //streaming.maxPrice();
-        //streaming.avgPrice();
+        streaming.executeEight();
+        streaming.executeEightThree();
+        streaming.executeEightFour();
+        streaming.executeEightFive();
+        streaming.highestPrice();
+        streaming.lowestPriceOver10k();
+        streaming.highestPriceOver10k();
+        streaming.maxPrice();
+        streaming.avgPrice();
         streaming.overAveragPrice();
         streaming.doNull();
     }
@@ -51,6 +56,8 @@ public class Streaming {
 
     private void executeEight(){
 
+        System.out.println("ExecuteEight");
+
         ducatis.stream()
                 .filter(d -> {
                     System.out.println("Examining " + d);
@@ -60,100 +67,88 @@ public class Streaming {
                 .map(d -> {
                     System.out.println(d);
                     return d;
-                });
-    }
-
-    private void executeEightTwo(){
-
-        System.out.println("Examining ducatis");
-
-        ducatisModels.stream()
-                .filter(d -> {
-                    throw new RuntimeException("Bobbins");
-//                    System.out.println("Examining " + d.name);
-//                    return  d.name.contains("gale");
-
-                })
-                .map(d -> {
-                    System.out.println(d);
-                    return d;
-                });
+                }).forEach(System.out::println);        //doesn't print out without terminal function.
     }
 
 
     private void executeEightThree(){
 
-        System.out.println("Repopulating ducatis");
+        System.out.println("\nCreating a list of all Ducatis with 'gale' in their name");
 
         List<Ducati> newList = ducatisModels.stream()
                 .filter(d -> d.name.contains("gale"))
                 .collect(Collectors.toList());
-        System.out.println(newList);
+        System.out.println("\t"+newList);
     }
 
 
 
     private void executeEightFour(){
 
-        System.out.println("Repopulating ducatis");
+        System.out.println("\nAnother way to do the same thing");
 
         ducatisModels.stream()
                 .filter(d -> d.name.contains("gale"))
                 .map(Ducati::toString)
-                .forEach(System.out::println);
+                .forEach(d -> System.out.println("\t"+d));
     }
 
 
     private void executeEightFive(){
 
-        System.out.println("Getting the name of sports bike ducatis");
+        System.out.println("\nGetting the name of sports bike ducatis");
 
         ducatisModels.stream()
                 .filter(d -> d.name.contains("gale"))
                 .map(Ducati::name)
-                .forEach(System.out::println);
+                .forEach(d -> System.out.println("\t"+d));
     }
 
 
     private void highestPrice(){
 
-        System.out.println("Calculating highest priced Ducati");
+        System.out.println("\nCalculating highest priced Ducati");
 
-        ducatisModels.sort(comparing(Ducati::price));
-        ducatisModels.stream().forEach(System.out::println);
+        List<Ducati> copiedModels = new ArrayList();
+        Collections.copy(ducatisModels, copiedModels);
+
+        copiedModels.sort(comparing(Ducati::price));
+        copiedModels
+                .stream()
+                .forEach(d -> System.out.println("\t"+d));
     }
 
 
     private void lowestPriceOver10k(){
 
-        System.out.println("Getting the name of Ducatis over 10000, lowest price, sorted by price");
+        System.out.println("\nGetting the name of Ducatis over 10000, lowest price, sorted by price");
 
         ducatisModels.stream()
                 .filter(d -> d.price > 10000)
                 .sorted(comparingInt(Ducati::price))
                 .findFirst()
                 .map(Ducati::name)
-                .ifPresent(System.out::println);
+                .ifPresent(d -> System.out.println("\t"+d));
     }
 
 
     private void highestPriceOver10k(){
 
-        System.out.println("Getting the name of the highest priced Ducati over 10k");
+        System.out.println("\nGetting the name of the highest priced Ducati over 10k");
 
         ducatisModels.stream()
                 .filter(d -> d.price > 10000)
                 .sorted(comparingInt(Ducati::price).reversed())
                 .findFirst()
                 .ifPresent(d -> {
-                    System.out.println(d.name + " £"+d.price);
+                    System.out.println("\t"+d.name + " £"+d.price);
                 });
     }
 
 
     private void maxPrice(){
 
-        System.out.println("Use max to get highest priced Ducati");
+        System.out.println("\nUse max to get highest priced Ducati");
 
         final Comparator<Ducati> comp = (d1, d2) -> Integer.compare( d1.price, d2.price);
 
@@ -161,7 +156,7 @@ public class Streaming {
         ducatisModels.stream()
                 .max(comp)
                 .ifPresent(d -> {
-                    System.out.println(d.name + " £"+d.price);
+                    System.out.println("\t"+d.name + " £"+d.price);
                 });
     }
 
@@ -169,21 +164,21 @@ public class Streaming {
 
     private void avgPrice(){
 
-        System.out.println("Get average price of the Ducatis");
+        System.out.println("\nGet average price of the Ducatis");
 
         ducatisModels
                 .stream()
                 .mapToInt(Ducati::price)
                 .average()
                 .ifPresent(avgPrice -> {
-                    System.out.println("£"+avgPrice);
+                    System.out.println("\t"+"£"+avgPrice);
                 });
     }
 
 
     private void overAveragPrice() {
 
-        System.out.println("Get average price of the Ducatis");
+        System.out.println("\nGet average price of the Ducatis");
 
         ducatisModels
                 .stream()
@@ -194,7 +189,7 @@ public class Streaming {
                     ducatisModels.stream()
                             .filter(d -> d.price > avgPrice)
                             .forEach(d -> {
-                                System.out.println(d.name + " £" + d.price);
+                                System.out.println("\t"+d.name + " £" + d.price);
                             });
                 });
     }
@@ -202,7 +197,7 @@ public class Streaming {
 
     private void doNull(){
 
-        System.out.println("How can we process a null");
+        System.out.println("\nHow can we process a null");
 
         String result = Stream.of(empty)
                 .filter(Objects::nonNull)
@@ -210,28 +205,19 @@ public class Streaming {
                 .map(Objects::toString)
                 .orElse("DEFAULT");
 
-        System.out.println(result);
+        System.out.println("\t"+result);
 
-        Stream.of(empty)
-                .filter(e -> e==null)
-                .findFirst()
-                .ifPresent(System.out::println);
+    }
 
+    private void otherStuff(){
+        long bikecount  = Stream
+                .builder()
+                .add( new Streaming.Ducati("Multistrada", Ducati.Model.TOURING,   15000))
+                .add(new Streaming.Ducati("Panigale",    Ducati.Model.SUPERBIKE, 21000))
+                .build()
+                .count();
 
-//        Pattern TAXON_ID_PATTERN = Pattern.compile("taxon:[0-9]*");
-//        String value=null;
-//        int DEFAULT_TAXON_ID = 12356;
-//
-//        int result =  Stream.of(value)
-//                .filter(Objects::nonNull)
-//                .findFirst()
-//                .map(v -> TAXON_ID_PATTERN.matcher(v))
-//                .filter(Matcher::matches)
-//                .map(matcher -> Integer.parseInt(matcher.group(1)))
-//                .orElse(DEFAULT_TAXON_ID);
-//
-//        System.out.println(result);
-
+        System.out.println("The number of built bikes is " + bikecount);
     }
 
     //******************************************************************************************************************
